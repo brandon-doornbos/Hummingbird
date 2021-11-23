@@ -11,7 +11,9 @@ x11 = dependency('x11')
 glfw = dependency('glfw3')
 
 sources = files([
-  'main.cpp',
+  'src/app.hpp',
+  'src/app.cpp',
+  'src/main.cpp',
 ])
 
 hummingbird = executable(

@@ -1,21 +1,25 @@
 #define PROJECT_NAME "hummingbird"
 
-#include <iostream>
 #include <cstdlib>
+#include <vector>
 
-#include "app.hpp"
+#include "HB/app.hpp"
 
-const uint32_t WIDTH = 1280;
-const uint32_t HEIGHT = 720;
+uint32_t const WIDTH = 1280;
+uint32_t const HEIGHT = 720;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
-    AppInfo app_info = { WIDTH, HEIGHT, PROJECT_NAME };
-    App app = App(app_info);
+    HB::AppInfo app_info{};
+    app_info.width = WIDTH;
+    app_info.height = HEIGHT;
+    app_info.name = PROJECT_NAME;
+    HB::App app{app_info};
     app.run();
 
     return 0;
 }
+

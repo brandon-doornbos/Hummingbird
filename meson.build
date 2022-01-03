@@ -10,8 +10,8 @@ vulkan = dependency('vulkan')
 glfw = dependency('glfw3')
 
 sources = files([
-  'src/app.hpp',
-  'src/app.cpp',
+  'src/HB/app.hpp',
+  'src/HB/app.cpp',
   'src/main.cpp',
 ])
 

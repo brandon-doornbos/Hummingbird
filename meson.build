@@ -7,7 +7,6 @@ project('hummingbird', 'cpp',
 )
 
 vulkan = dependency('vulkan')
-x11 = dependency('x11')
 glfw = dependency('glfw3')
 
 sources = files([
@@ -21,9 +20,9 @@ hummingbird = executable(
   sources,
   dependencies : [
     vulkan,
-    x11,
     glfw,
   ],
 )
 
 test('basic', hummingbird)
+

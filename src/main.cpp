@@ -1,12 +1,11 @@
-#define PROJECT_NAME "hummingbird"
-
 #include <cstdlib>
 #include <vector>
 
 #include "HB/app.hpp"
 
-uint32_t const WIDTH = 1280;
-uint32_t const HEIGHT = 720;
+constexpr char const *PROJECT_NAME = "hummingbird";
+constexpr uint32_t const WIDTH = 1280;
+constexpr uint32_t const HEIGHT = 720;
 
 int main(int argc, char **argv)
 {

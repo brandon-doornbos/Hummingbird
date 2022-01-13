@@ -34,6 +34,8 @@ private:
     GLFWwindow* m_window;
     VkInstance m_instance;
     VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
+    VkDevice m_device;
+    VkQueue m_graphics_queue;
 
     struct QueueFamilyIndices;
 
@@ -44,6 +46,7 @@ private:
     void pickPhysicalDevice();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
     bool isDeviceSuitable(VkPhysicalDevice);
+    void createLogicalDevice();
     void loop();
 };
 

@@ -37,6 +37,7 @@ private:
     VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
     VkDevice m_device;
     VkQueue m_graphics_queue;
+    VkQueue m_present_queue;
 
     struct QueueFamilyIndices;
 

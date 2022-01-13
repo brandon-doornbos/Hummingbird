@@ -1,5 +1,6 @@
 #include <cstring>
 #include <optional>
+#include <set>
 #include <stdexcept>
 
 #include "app.hpp"
@@ -144,10 +145,11 @@ void App::pickPhysicalDevice()
 
 struct App::QueueFamilyIndices {
     std::optional<uint32_t> graphics_family;
+    std::optional<uint32_t> present_family;
 
     bool isComplete()
     {
-        return graphics_family.has_value();
+        return graphics_family.has_value() && present_family.has_value();
     }
 };
 
@@ -165,6 +167,11 @@ App::QueueFamilyIndices App::findQueueFamilies(VkPhysicalDevice device)
     for (VkQueueFamilyProperties const& queue_family : queue_families) {
         if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             indices.graphics_family = i;
+
+        VkBool32 present_support = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &present_support);
+        if (present_support)
+            indices.present_family = i;
 
         if (indices.isComplete())
             break;
@@ -193,21 +200,28 @@ void App::createLogicalDevice()
 {
     QueueFamilyIndices indices = findQueueFamilies(m_physical_device);
 
-    VkDeviceQueueCreateInfo queue_create_info {};
-    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_create_info.queueFamilyIndex = indices.graphics_family.value();
-    queue_create_info.queueCount = 1;
+    std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+    std::set<uint32_t> unique_queue_families = { indices.graphics_family.value(), indices.present_family.value() };
 
     float queue_priority = 1.0f;
-    queue_create_info.pQueuePriorities = &queue_priority;
+    for (uint32_t queue_family : unique_queue_families) {
+        VkDeviceQueueCreateInfo queue_create_info {};
+        queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queue_create_info.queueFamilyIndex = queue_family;
+        queue_create_info.queueCount = 1;
+        queue_create_info.pQueuePriorities = &queue_priority;
+        queue_create_infos.push_back(queue_create_info);
+    }
+
+    VkPhysicalDeviceFeatures device_features {};
 
     VkDeviceCreateInfo create_info {};
     create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    create_info.pQueueCreateInfos = &queue_create_info;
-    create_info.queueCreateInfoCount = 1;
+    create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
+    create_info.pQueueCreateInfos = queue_create_infos.data();
 
-    // create_info.pEnabledFeatures = &deviceFeatures;
+    create_info.pEnabledFeatures = &device_features;
 
     create_info.enabledExtensionCount = 0;
 
@@ -222,6 +236,7 @@ void App::createLogicalDevice()
         throw std::runtime_error("failed to create logical device!");
 
     vkGetDeviceQueue(m_device, indices.graphics_family.value(), 0, &m_graphics_queue);
+    vkGetDeviceQueue(m_device, indices.present_family.value(), 0, &m_present_queue);
 }
 
 void App::loop()

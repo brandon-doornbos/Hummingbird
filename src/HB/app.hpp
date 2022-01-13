@@ -33,6 +33,7 @@ private:
     AppInfo m_app_info;
     GLFWwindow* m_window;
     VkInstance m_instance;
+    VkSurfaceKHR m_surface;
     VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
     VkDevice m_device;
     VkQueue m_graphics_queue;
@@ -42,6 +43,7 @@ private:
     bool checkValidationLayerSupport() const;
     void initWindow();
     void createInstance();
+    void createSurface();
     void initVulkan();
     void pickPhysicalDevice();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);

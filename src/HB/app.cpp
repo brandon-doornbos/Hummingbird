@@ -21,6 +21,7 @@ App::App(AppInfo app_info)
 App::~App()
 {
     vkDestroyDevice(m_device, nullptr);
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 
     glfwDestroyWindow(m_window);
@@ -105,9 +106,16 @@ void App::createInstance()
     // Checking for extension support
 }
 
+void App::createSurface()
+{
+    if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
+        throw std::runtime_error("failed to create window surface!");
+}
+
 void App::initVulkan()
 {
     createInstance();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
 }

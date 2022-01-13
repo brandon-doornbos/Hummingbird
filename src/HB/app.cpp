@@ -120,6 +120,16 @@ void App::pickPhysicalDevice()
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+
+    for (VkPhysicalDevice const& device : devices) {
+        if (isDeviceSuitable(device)) {
+            m_physical_device = device;
+            break;
+        }
+    }
+
+    if (m_physical_device == VK_NULL_HANDLE)
+        throw std::runtime_error("failed to find a suitable GPU!");
 }
 
 struct App::QueueFamilyIndices {
@@ -142,7 +152,7 @@ App::QueueFamilyIndices App::findQueueFamilies(VkPhysicalDevice device)
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
 
     int i = 0;
-    for (auto const& queue_family : queue_families) {
+    for (VkQueueFamilyProperties const& queue_family : queue_families) {
         if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             indices.graphics_family = i;
 

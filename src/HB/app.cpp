@@ -15,8 +15,8 @@ void App::run()
 App::App(AppInfo app_info)
     : m_app_info(app_info)
 {
-    initWindow();
-    initVulkan();
+    init_window();
+    init_vulkan();
 }
 
 App::~App()
@@ -29,32 +29,32 @@ App::~App()
     glfwTerminate();
 }
 
-bool App::checkValidationLayerSupport() const
+bool App::check_validation_layer_support() const
 {
-    uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    uint32_t layer_count;
+    vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
 
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    std::vector<VkLayerProperties> available_layers(layer_count);
+    vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
 
     for (char const* layerName : m_validation_layers) {
-        bool layerFound = false;
+        bool layer_found = false;
 
-        for (auto const& layerProperties : availableLayers) {
+        for (auto const& layerProperties : available_layers) {
             if (strcmp(layerName, layerProperties.layerName) == 0) {
-                layerFound = true;
+                layer_found = true;
                 break;
             }
         }
 
-        if (!layerFound)
+        if (!layer_found)
             return false;
     }
 
     return true;
 }
 
-void App::initWindow()
+void App::init_window()
 {
     if (glfwInit() != GLFW_TRUE)
         throw std::runtime_error("Failed to initialize GLFW!");
@@ -67,9 +67,9 @@ void App::initWindow()
         throw std::runtime_error("Failed to create a window!");
 }
 
-void App::createInstance()
+void App::create_instance()
 {
-    if (m_enable_validation_layers && !checkValidationLayerSupport())
+    if (m_enable_validation_layers && !check_validation_layer_support())
         throw std::runtime_error("validation layers requested, but not available!");
 
     // VkApplicationInfo vkAppInfo{};
@@ -80,60 +80,60 @@ void App::createInstance()
     // vkAppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     // vkAppInfo.apiVersion = VK_API_VERSION_1_0;
 
-    VkInstanceCreateInfo createInfo {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    VkInstanceCreateInfo create_info {};
+    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     // createInfo.pApplicationInfo = &appInfo;
 
-    uint32_t glfwExtensionCount = 0;
-    char const** glfwExtensions;
+    uint32_t glfw_extension_count = 0;
+    char const** glfw_extensions;
 
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    if (glfwExtensions == NULL)
+    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+    if (glfw_extensions == NULL)
         throw std::runtime_error("Failed to get required extensions.");
 
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
+    create_info.enabledExtensionCount = glfw_extension_count;
+    create_info.ppEnabledExtensionNames = glfw_extensions;
     if (m_enable_validation_layers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validation_layers.size());
-        createInfo.ppEnabledLayerNames = m_validation_layers.data();
+        create_info.enabledLayerCount = static_cast<uint32_t>(m_validation_layers.size());
+        create_info.ppEnabledLayerNames = m_validation_layers.data();
     } else {
-        createInfo.enabledLayerCount = 0;
+        create_info.enabledLayerCount = 0;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+    if (vkCreateInstance(&create_info, nullptr, &m_instance) != VK_SUCCESS)
         throw std::runtime_error("failed to create instance!");
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
     // Checking for extension support
 }
 
-void App::createSurface()
+void App::create_surface()
 {
     if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
         throw std::runtime_error("failed to create window surface!");
 }
 
-void App::initVulkan()
+void App::init_vulkan()
 {
-    createInstance();
-    createSurface();
-    pickPhysicalDevice();
-    createLogicalDevice();
+    create_instance();
+    create_surface();
+    pick_physical_device();
+    create_logical_device();
 }
 
-void App::pickPhysicalDevice()
+void App::pick_physical_device()
 {
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+    uint32_t device_count = 0;
+    vkEnumeratePhysicalDevices(m_instance, &device_count, nullptr);
 
-    if (deviceCount == 0)
+    if (device_count == 0)
         throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+    std::vector<VkPhysicalDevice> devices(device_count);
+    vkEnumeratePhysicalDevices(m_instance, &device_count, devices.data());
 
     for (VkPhysicalDevice const& device : devices) {
-        if (isDeviceSuitable(device)) {
+        if (is_device_suitable(device)) {
             m_physical_device = device;
             break;
         }
@@ -153,7 +153,7 @@ struct App::QueueFamilyIndices {
     }
 };
 
-App::QueueFamilyIndices App::findQueueFamilies(VkPhysicalDevice device)
+App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
 
@@ -182,7 +182,7 @@ App::QueueFamilyIndices App::findQueueFamilies(VkPhysicalDevice device)
     return indices;
 }
 
-bool App::isDeviceSuitable(VkPhysicalDevice device)
+bool App::is_device_suitable(VkPhysicalDevice device)
 {
     // VkPhysicalDeviceProperties deviceProperties;
     // VkPhysicalDeviceFeatures deviceFeatures;
@@ -191,14 +191,14 @@ bool App::isDeviceSuitable(VkPhysicalDevice device)
 
     // return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
     //        deviceFeatures.geometryShader;
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = find_queue_families(device);
 
     return indices.isComplete();
 }
 
-void App::createLogicalDevice()
+void App::create_logical_device()
 {
-    QueueFamilyIndices indices = findQueueFamilies(m_physical_device);
+    QueueFamilyIndices indices = find_queue_families(m_physical_device);
 
     std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
     std::set<uint32_t> unique_queue_families = { indices.graphics_family.value(), indices.present_family.value() };

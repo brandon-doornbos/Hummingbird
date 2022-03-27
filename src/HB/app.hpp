@@ -41,15 +41,15 @@ private:
 
     struct QueueFamilyIndices;
 
-    bool checkValidationLayerSupport() const;
-    void initWindow();
-    void createInstance();
-    void createSurface();
-    void initVulkan();
-    void pickPhysicalDevice();
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
-    bool isDeviceSuitable(VkPhysicalDevice);
-    void createLogicalDevice();
+    bool check_validation_layer_support() const;
+    void init_window();
+    void create_instance();
+    void create_surface();
+    void init_vulkan();
+    void pick_physical_device();
+    QueueFamilyIndices find_queue_families(VkPhysicalDevice);
+    bool is_device_suitable(VkPhysicalDevice);
+    void create_logical_device();
     void loop();
 };
 

@@ -147,7 +147,7 @@ struct App::QueueFamilyIndices {
     std::optional<uint32_t> graphics_family;
     std::optional<uint32_t> present_family;
 
-    bool isComplete()
+    bool complete()
     {
         return graphics_family.has_value() && present_family.has_value();
     }
@@ -173,7 +173,7 @@ App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device)
         if (present_support)
             indices.present_family = i;
 
-        if (indices.isComplete())
+        if (indices.complete())
             break;
 
         i++;
@@ -193,7 +193,7 @@ bool App::is_device_suitable(VkPhysicalDevice device)
     //        deviceFeatures.geometryShader;
     QueueFamilyIndices indices = find_queue_families(device);
 
-    return indices.isComplete();
+    return indices.complete();
 }
 
 void App::create_logical_device()

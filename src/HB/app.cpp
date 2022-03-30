@@ -153,7 +153,7 @@ struct App::QueueFamilyIndices {
     }
 };
 
-App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device)
+App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device) const
 {
     QueueFamilyIndices indices;
 

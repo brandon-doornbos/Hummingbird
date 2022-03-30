@@ -47,7 +47,7 @@ private:
     void create_surface();
     void init_vulkan();
     void pick_physical_device();
-    QueueFamilyIndices find_queue_families(VkPhysicalDevice);
+    QueueFamilyIndices find_queue_families(VkPhysicalDevice) const;
     bool is_device_suitable(VkPhysicalDevice);
     void create_logical_device();
     void loop();

@@ -30,6 +30,9 @@ private:
 #else
     bool const m_enable_validation_layers = true;
 #endif
+    std::vector<char const*> const m_device_extensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
     AppInfo m_app_info;
     GLFWwindow* m_window;
     VkInstance m_instance;
@@ -38,8 +41,13 @@ private:
     VkDevice m_device;
     VkQueue m_graphics_queue;
     VkQueue m_present_queue;
+    VkSwapchainKHR m_swap_chain;
+    std::vector<VkImage> m_swap_chain_images;
+    VkFormat m_swap_chain_image_format;
+    VkExtent2D m_swap_chain_extent;
 
     struct QueueFamilyIndices;
+    struct SwapChainSupportDetails;
 
     bool check_validation_layer_support() const;
     void init_window();
@@ -48,8 +56,14 @@ private:
     void init_vulkan();
     void pick_physical_device();
     QueueFamilyIndices find_queue_families(VkPhysicalDevice) const;
+    bool check_device_extension_support(VkPhysicalDevice) const;
+    SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice) const;
+    VkSurfaceFormatKHR choose_swap_surface_format(std::vector<VkSurfaceFormatKHR> const&) const;
+    VkPresentModeKHR choose_swap_present_mode(std::vector<VkPresentModeKHR> const&) const;
+    VkExtent2D choose_swap_extent(VkSurfaceCapabilitiesKHR const&) const;
     bool is_device_suitable(VkPhysicalDevice);
     void create_logical_device();
+    void create_swap_chain();
     void loop();
 };
 

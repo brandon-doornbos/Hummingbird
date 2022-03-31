@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "HB/app.hpp"
+#include "app.hpp"
 
 constexpr char const* PROJECT_NAME = "hummingbird";
 constexpr uint32_t const WIDTH = 1280;

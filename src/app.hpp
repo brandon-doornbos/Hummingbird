@@ -66,6 +66,8 @@ private:
     void create_logical_device();
     void create_swap_chain();
     void create_image_views();
+    VkShaderModule create_shader_module(std::vector<char> const& source) const;
+    void create_graphics_pipeline();
     void loop();
 };
 

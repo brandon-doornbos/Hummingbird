@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "app.hpp"
+#include "util.hpp"
 
 namespace HB {
 
@@ -124,6 +125,7 @@ void App::init_vulkan()
     create_logical_device();
     create_swap_chain();
     create_image_views();
+    create_graphics_pipeline();
 }
 
 void App::pick_physical_device()
@@ -413,6 +415,44 @@ void App::create_image_views()
         if (vkCreateImageView(m_device, &create_info, nullptr, &m_swap_chain_image_views[i]) != VK_SUCCESS)
             throw std::runtime_error("failed to create image views!");
     }
+}
+
+VkShaderModule App::create_shader_module(std::vector<char> const& source) const
+{
+    VkShaderModuleCreateInfo create_info {};
+    create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    create_info.codeSize = source.size();
+    create_info.pCode = reinterpret_cast<uint32_t const*>(source.data());
+
+    VkShaderModule shader_module;
+    if (vkCreateShaderModule(m_device, &create_info, nullptr, &shader_module) != VK_SUCCESS)
+        throw std::runtime_error("failed to create shader module!");
+
+    return shader_module;
+}
+
+void App::create_graphics_pipeline()
+{
+    auto vertex_shader_source = Util::read_file("shaders/vert.spv");
+    VkShaderModule vertex_shader_module = create_shader_module(vertex_shader_source);
+    VkPipelineShaderStageCreateInfo vertex_shader_stage_info {};
+    vertex_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertex_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertex_shader_stage_info.module = vertex_shader_module;
+    vertex_shader_stage_info.pName = "main";
+
+    auto fragment_shader_source = Util::read_file("shaders/frag.spv");
+    VkShaderModule fragment_shader_module = create_shader_module(fragment_shader_source);
+    VkPipelineShaderStageCreateInfo fragment_shader_stage_info {};
+    fragment_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragment_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragment_shader_stage_info.module = fragment_shader_module;
+    fragment_shader_stage_info.pName = "main";
+
+    VkPipelineShaderStageCreateInfo shader_stages[] = { vertex_shader_stage_info, fragment_shader_stage_info };
+
+    vkDestroyShaderModule(m_device, vertex_shader_module, nullptr);
+    vkDestroyShaderModule(m_device, fragment_shader_module, nullptr);
 }
 
 void App::loop()

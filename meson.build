@@ -26,5 +26,10 @@ hummingbird = executable(
   ],
 )
 
+run_target(
+  'shaders',
+  command : 'compile_shaders.sh'
+)
+
 test('basic', hummingbird)
 

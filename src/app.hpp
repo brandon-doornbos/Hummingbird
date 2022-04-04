@@ -49,6 +49,7 @@ private:
     VkPipelineLayout m_pipeline_layout;
     VkRenderPass m_render_pass;
     VkPipeline m_graphics_pipeline;
+    std::vector<VkFramebuffer> m_swap_chain_framebuffers;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -72,6 +73,7 @@ private:
     VkShaderModule create_shader_module(std::vector<char> const& source) const;
     void create_render_pass();
     void create_graphics_pipeline();
+    void create_framebuffers();
     void loop();
 };
 

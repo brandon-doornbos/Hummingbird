@@ -46,6 +46,9 @@ private:
     VkFormat m_swap_chain_image_format;
     VkExtent2D m_swap_chain_extent;
     std::vector<VkImageView> m_swap_chain_image_views;
+    VkPipelineLayout m_pipeline_layout;
+    VkRenderPass m_render_pass;
+    VkPipeline m_graphics_pipeline;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -67,6 +70,7 @@ private:
     void create_swap_chain();
     void create_image_views();
     VkShaderModule create_shader_module(std::vector<char> const& source) const;
+    void create_render_pass();
     void create_graphics_pipeline();
     void loop();
 };

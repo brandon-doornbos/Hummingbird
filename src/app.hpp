@@ -1,6 +1,7 @@
 #ifndef _HB_APP
 #define _HB_APP
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -22,6 +23,7 @@ public:
     ~App();
 
 private:
+    static uint32_t const MAX_FRAMES_IN_FLIGHT = 2;
     std::vector<char const*> const m_validation_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -51,10 +53,14 @@ private:
     VkPipeline m_graphics_pipeline;
     std::vector<VkFramebuffer> m_swap_chain_framebuffers;
     VkCommandPool m_command_pool;
-    VkCommandBuffer m_command_buffer;
-    VkSemaphore m_image_available_semaphore;
-    VkSemaphore m_render_finished_semaphore;
-    VkFence m_in_flight_fence;
+    // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Frames_in_flight
+    // these need to be vectors and be resized in their respective create functions if we want
+    // to change max frames in flight (double/triple-buffering) on the fly
+    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_command_buffers;
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_image_available_semaphores;
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_render_finished_semaphores;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_in_flight_fences;
+    uint32_t m_current_frame = 0;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -80,7 +86,7 @@ private:
     void create_graphics_pipeline();
     void create_framebuffers();
     void create_command_pool();
-    void create_command_buffer();
+    void create_command_buffers();
     void record_command_buffer(VkCommandBuffer, uint32_t);
     void create_sync_objects();
     void draw_frame();

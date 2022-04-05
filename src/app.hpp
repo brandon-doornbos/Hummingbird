@@ -50,6 +50,7 @@ private:
     VkRenderPass m_render_pass;
     VkPipeline m_graphics_pipeline;
     std::vector<VkFramebuffer> m_swap_chain_framebuffers;
+    VkCommandPool m_command_pool;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -74,6 +75,7 @@ private:
     void create_render_pass();
     void create_graphics_pipeline();
     void create_framebuffers();
+    void create_command_pool();
     void loop();
 };
 

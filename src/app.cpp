@@ -22,6 +22,7 @@ App::App(AppInfo app_info)
 
 App::~App()
 {
+    vkDestroyCommandPool(m_device, m_command_pool, nullptr);
     for (auto framebuffer : m_swap_chain_framebuffers)
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     vkDestroyPipeline(m_device, m_graphics_pipeline, nullptr);
@@ -133,6 +134,7 @@ void App::init_vulkan()
     create_render_pass();
     create_graphics_pipeline();
     create_framebuffers();
+    create_command_pool();
 }
 
 void App::pick_physical_device()
@@ -616,6 +618,19 @@ void App::create_framebuffers()
         if (vkCreateFramebuffer(m_device, &framebuffer_info, nullptr, &m_swap_chain_framebuffers[i]) != VK_SUCCESS)
             throw std::runtime_error("failed to create framebuffer!");
     }
+}
+
+void App::create_command_pool()
+{
+    QueueFamilyIndices queue_family_indices = find_queue_families(m_physical_device);
+
+    VkCommandPoolCreateInfo pool_info {};
+    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_info.queueFamilyIndex = queue_family_indices.graphics_family.value();
+
+    if (vkCreateCommandPool(m_device, &pool_info, nullptr, &m_command_pool) != VK_SUCCESS)
+        throw std::runtime_error("failed to create command pool!");
 }
 
 void App::loop()

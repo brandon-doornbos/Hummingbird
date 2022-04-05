@@ -52,6 +52,9 @@ private:
     std::vector<VkFramebuffer> m_swap_chain_framebuffers;
     VkCommandPool m_command_pool;
     VkCommandBuffer m_command_buffer;
+    VkSemaphore m_image_available_semaphore;
+    VkSemaphore m_render_finished_semaphore;
+    VkFence m_in_flight_fence;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -79,6 +82,8 @@ private:
     void create_command_pool();
     void create_command_buffer();
     void record_command_buffer(VkCommandBuffer, uint32_t);
+    void create_sync_objects();
+    void draw_frame();
     void loop();
 };
 

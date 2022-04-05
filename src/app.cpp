@@ -79,11 +79,19 @@ void App::init_window()
         throw std::runtime_error("Failed to initialize GLFW!");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     m_window = glfwCreateWindow(m_app_info.width, m_app_info.height, m_app_info.name, nullptr, nullptr);
     if (m_window == NULL)
         throw std::runtime_error("Failed to create a window!");
+
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetFramebufferSizeCallback(m_window, framebuffer_resize_callback);
+}
+
+void App::framebuffer_resize_callback(GLFWwindow* window, int width, int height)
+{
+    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+    app->m_framebuffer_resized = true;
 }
 
 void App::create_instance()
@@ -787,7 +795,8 @@ void App::draw_frame()
 
     result = vkQueuePresentKHR(m_present_queue, &present_info);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebuffer_resized) {
+        m_framebuffer_resized = false;
         recreate_swap_chain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");

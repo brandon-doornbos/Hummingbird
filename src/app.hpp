@@ -60,6 +60,7 @@ private:
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_image_available_semaphores;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> m_render_finished_semaphores;
     std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_in_flight_fences;
+    bool m_framebuffer_resized = false;
     uint32_t m_current_frame = 0;
 
     struct QueueFamilyIndices;
@@ -68,6 +69,7 @@ private:
     void destruct_swap_chain();
     bool check_validation_layer_support() const;
     void init_window();
+    static void framebuffer_resize_callback(GLFWwindow*, int, int);
     void create_instance();
     void create_surface();
     void init_vulkan();

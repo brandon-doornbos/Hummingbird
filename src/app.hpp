@@ -65,6 +65,7 @@ private:
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
 
+    void destruct_swap_chain();
     bool check_validation_layer_support() const;
     void init_window();
     void create_instance();
@@ -85,6 +86,7 @@ private:
     void create_render_pass();
     void create_graphics_pipeline();
     void create_framebuffers();
+    void recreate_swap_chain();
     void create_command_pool();
     void create_command_buffers();
     void record_command_buffer(VkCommandBuffer, uint32_t);

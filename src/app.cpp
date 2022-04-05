@@ -20,14 +20,8 @@ App::App(AppInfo app_info)
     init_vulkan();
 }
 
-App::~App()
+void App::destruct_swap_chain()
 {
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(m_device, m_image_available_semaphores[i], nullptr);
-        vkDestroySemaphore(m_device, m_render_finished_semaphores[i], nullptr);
-        vkDestroyFence(m_device, m_in_flight_fences[i], nullptr);
-    }
-    vkDestroyCommandPool(m_device, m_command_pool, nullptr);
     for (auto framebuffer : m_swap_chain_framebuffers)
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     vkDestroyPipeline(m_device, m_graphics_pipeline, nullptr);
@@ -36,6 +30,16 @@ App::~App()
     for (auto image_view : m_swap_chain_image_views)
         vkDestroyImageView(m_device, image_view, nullptr);
     vkDestroySwapchainKHR(m_device, m_swap_chain, nullptr);
+}
+
+App::~App()
+{
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(m_device, m_image_available_semaphores[i], nullptr);
+        vkDestroySemaphore(m_device, m_render_finished_semaphores[i], nullptr);
+        vkDestroyFence(m_device, m_in_flight_fences[i], nullptr);
+    }
+    vkDestroyCommandPool(m_device, m_command_pool, nullptr);
     vkDestroyDevice(m_device, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
@@ -635,6 +639,29 @@ void App::create_framebuffers()
     }
 }
 
+void App::recreate_swap_chain()
+{
+    // TODO: Refactor swap chain and direct dependants into its own class, this enables a way
+    //       cleaner API here, just swap_chain.recreate(), ~swap_chain() etc.
+
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(m_window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(m_device);
+
+    destruct_swap_chain();
+
+    create_swap_chain();
+    create_image_views();
+    create_render_pass();
+    create_graphics_pipeline();
+    create_framebuffers();
+}
+
 void App::create_command_pool()
 {
     QueueFamilyIndices queue_family_indices = find_queue_families(m_physical_device);
@@ -715,10 +742,17 @@ void App::create_sync_objects()
 void App::draw_frame()
 {
     vkWaitForFences(m_device, 1, &m_in_flight_fences[m_current_frame], VK_TRUE, UINT64_MAX);
-    vkResetFences(m_device, 1, &m_in_flight_fences[m_current_frame]);
 
     uint32_t image_index;
-    vkAcquireNextImageKHR(m_device, m_swap_chain, UINT64_MAX, m_image_available_semaphores[m_current_frame], VK_NULL_HANDLE, &image_index);
+    VkResult result = vkAcquireNextImageKHR(m_device, m_swap_chain, UINT64_MAX, m_image_available_semaphores[m_current_frame], VK_NULL_HANDLE, &image_index);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreate_swap_chain();
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    vkResetFences(m_device, 1, &m_in_flight_fences[m_current_frame]);
 
     VkSubmitInfo submit_info {};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -751,7 +785,13 @@ void App::draw_frame()
     present_info.pImageIndices = &image_index;
     // present_info.pResults = nullptr; for multiple swap chains
 
-    vkQueuePresentKHR(m_present_queue, &present_info);
+    result = vkQueuePresentKHR(m_present_queue, &present_info);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        recreate_swap_chain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     m_current_frame = (m_current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

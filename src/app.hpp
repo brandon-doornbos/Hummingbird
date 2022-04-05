@@ -78,6 +78,7 @@ private:
     void create_framebuffers();
     void create_command_pool();
     void create_command_buffer();
+    void record_command_buffer(VkCommandBuffer, uint32_t);
     void loop();
 };
 

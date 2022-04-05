@@ -646,6 +646,36 @@ void App::create_command_buffer()
         throw std::runtime_error("failed to allocate command buffers!");
 }
 
+void App::record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
+{
+    VkCommandBufferBeginInfo begin_info {};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(m_command_buffer, &begin_info) != VK_SUCCESS)
+        throw std::runtime_error("failed to begin recording command buffer!");
+
+    VkRenderPassBeginInfo render_pass_info {};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = m_render_pass;
+    render_pass_info.framebuffer = m_swap_chain_framebuffers[image_index];
+    render_pass_info.renderArea.offset = { 0, 0 };
+    render_pass_info.renderArea.extent = m_swap_chain_extent;
+    VkClearValue clear_color = { { { 0.0f, 0.0f, 0.0f, 1.0f } } };
+    render_pass_info.clearValueCount = 1;
+    render_pass_info.pClearValues = &clear_color;
+
+    vkCmdBeginRenderPass(m_command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics_pipeline);
+
+    vkCmdDraw(m_command_buffer, 3, 1, 0, 0);
+
+    vkCmdEndRenderPass(m_command_buffer);
+
+    if (vkEndCommandBuffer(m_command_buffer) != VK_SUCCESS)
+        throw std::runtime_error("failed to record command buffer!");
+}
+
 void App::loop()
 {
     while (!glfwWindowShouldClose(m_window))

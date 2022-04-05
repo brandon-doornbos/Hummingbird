@@ -31,5 +31,5 @@ run_target(
   command : 'compile_shaders.sh'
 )
 
-test('basic', hummingbird)
+test('basic', files(['test.sh']))
 

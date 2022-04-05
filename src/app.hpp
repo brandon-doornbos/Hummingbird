@@ -51,6 +51,7 @@ private:
     VkPipeline m_graphics_pipeline;
     std::vector<VkFramebuffer> m_swap_chain_framebuffers;
     VkCommandPool m_command_pool;
+    VkCommandBuffer m_command_buffer;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -76,6 +77,7 @@ private:
     void create_graphics_pipeline();
     void create_framebuffers();
     void create_command_pool();
+    void create_command_buffer();
     void loop();
 };
 

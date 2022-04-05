@@ -135,6 +135,7 @@ void App::init_vulkan()
     create_graphics_pipeline();
     create_framebuffers();
     create_command_pool();
+    create_command_buffer();
 }
 
 void App::pick_physical_device()
@@ -631,6 +632,18 @@ void App::create_command_pool()
 
     if (vkCreateCommandPool(m_device, &pool_info, nullptr, &m_command_pool) != VK_SUCCESS)
         throw std::runtime_error("failed to create command pool!");
+}
+
+void App::create_command_buffer()
+{
+    VkCommandBufferAllocateInfo alloc_info {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = m_command_pool;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = 1;
+
+    if (vkAllocateCommandBuffers(m_device, &alloc_info, &m_command_buffer) != VK_SUCCESS)
+        throw std::runtime_error("failed to allocate command buffers!");
 }
 
 void App::loop()

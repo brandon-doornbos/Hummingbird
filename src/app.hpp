@@ -7,6 +7,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace HB {
 
@@ -62,6 +63,8 @@ private:
     std::array<VkFence, MAX_FRAMES_IN_FLIGHT> m_in_flight_fences;
     bool m_framebuffer_resized = false;
     uint32_t m_current_frame = 0;
+    VkBuffer m_vertex_buffer;
+    VkDeviceMemory m_vertex_buffer_memory;
 
     struct QueueFamilyIndices;
     struct SwapChainSupportDetails;
@@ -90,6 +93,8 @@ private:
     void create_framebuffers();
     void recreate_swap_chain();
     void create_command_pool();
+    uint32_t find_memory_type(uint32_t, VkMemoryPropertyFlags) const;
+    void create_vertex_buffer();
     void create_command_buffers();
     void record_command_buffer(VkCommandBuffer, uint32_t);
     void create_sync_objects();

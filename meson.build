@@ -6,6 +6,7 @@ project('hummingbird', 'cpp',
   ],
 )
 
+glm = dependency('glm')
 vulkan = dependency('vulkan')
 glfw = dependency('glfw3')
 
@@ -21,6 +22,7 @@ hummingbird = executable(
   'hummingbird',
   sources,
   dependencies : [
+    glm,
     vulkan,
     glfw,
   ],

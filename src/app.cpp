@@ -34,6 +34,7 @@ void App::destruct_swap_chain()
 
 App::~App()
 {
+    destruct_swap_chain();
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(m_device, m_image_available_semaphores[i], nullptr);
         vkDestroySemaphore(m_device, m_render_finished_semaphores[i], nullptr);

@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "app.hpp"
+#include "config.hpp"
 #include "util.hpp"
 
 namespace HB {
@@ -110,7 +111,10 @@ void App::init_window()
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    m_window = glfwCreateWindow(m_app_info.width, m_app_info.height, m_app_info.name, nullptr, nullptr);
+    m_window = glfwCreateWindow(
+        m_app_info.width, m_app_info.height,
+        (std::string(m_app_info.name) + " @ " + std::string(m_app_info.version)).c_str(),
+        nullptr, nullptr);
     if (m_window == NULL)
         throw std::runtime_error("Failed to create a window!");
 
@@ -129,17 +133,19 @@ void App::create_instance()
     if (m_enable_validation_layers && !check_validation_layer_support())
         throw std::runtime_error("validation layers requested, but not available!");
 
-    // VkApplicationInfo vkAppInfo{};
-    // vkAppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    // vkAppInfo.pApplicationName = m_app_info.name;
-    // vkAppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    // vkAppInfo.pEngineName = "No Engine";
-    // vkAppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    // vkAppInfo.apiVersion = VK_API_VERSION_1_0;
+    VkApplicationInfo app_info {};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.apiVersion = VK_API_VERSION_1_0;
+    app_info.pEngineName = ENGINE_NAME;
+    uint32_t engine_version = (uint32_t)std::hash<char const*> {}(ENGINE_VERSION);
+    app_info.engineVersion = engine_version;
+    app_info.pApplicationName = m_app_info.name;
+    uint32_t app_version = (uint32_t)std::hash<char const*> {}(m_app_info.version);
+    app_info.applicationVersion = app_version;
 
     VkInstanceCreateInfo create_info {};
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    // createInfo.pApplicationInfo = &appInfo;
+    create_info.pApplicationInfo = &app_info;
 
     uint32_t glfw_extension_count = 0;
     char const** glfw_extensions;

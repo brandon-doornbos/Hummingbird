@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir "${MESON_BUILD_ROOT}/shaders"
+ls "${MESON_BUILD_ROOT}/shaders" &> /dev/null || mkdir "${MESON_BUILD_ROOT}/shaders"
 
 cd "${MESON_SOURCE_ROOT}/src/shaders/"
 

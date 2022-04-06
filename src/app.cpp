@@ -219,7 +219,7 @@ struct App::QueueFamilyIndices {
     }
 };
 
-App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device) const
+App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice const& device) const
 {
     QueueFamilyIndices indices;
 
@@ -248,7 +248,7 @@ App::QueueFamilyIndices App::find_queue_families(VkPhysicalDevice device) const
     return indices;
 }
 
-bool App::check_device_extension_support(VkPhysicalDevice device) const
+bool App::check_device_extension_support(VkPhysicalDevice const& device) const
 {
     uint32_t extension_count;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
@@ -270,7 +270,7 @@ struct App::SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> present_modes;
 };
 
-App::SwapChainSupportDetails App::query_swap_chain_support(VkPhysicalDevice device) const
+App::SwapChainSupportDetails App::query_swap_chain_support(VkPhysicalDevice const& device) const
 {
     SwapChainSupportDetails details;
 
@@ -337,7 +337,7 @@ VkExtent2D App::choose_swap_extent(VkSurfaceCapabilitiesKHR const& capabilities)
     }
 }
 
-bool App::is_device_suitable(VkPhysicalDevice device)
+bool App::is_device_suitable(VkPhysicalDevice const& device) const
 {
     // VkPhysicalDeviceProperties deviceProperties;
     // VkPhysicalDeviceFeatures deviceFeatures;
@@ -718,7 +718,7 @@ void App::create_command_pool()
         throw std::runtime_error("failed to create command pool!");
 }
 
-uint32_t App::find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags properties) const
+uint32_t App::find_memory_type(uint32_t const type_filter, VkMemoryPropertyFlags const& properties) const
 {
     VkPhysicalDeviceMemoryProperties mem_properties;
     vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
@@ -779,7 +779,7 @@ void App::create_command_buffers()
         throw std::runtime_error("failed to allocate command buffers!");
 }
 
-void App::record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
+void App::record_command_buffer(VkCommandBuffer command_buffer, uint32_t const image_index)
 {
     VkCommandBufferBeginInfo begin_info {};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

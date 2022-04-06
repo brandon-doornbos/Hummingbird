@@ -26,9 +26,18 @@ hummingbird = executable(
   ],
 )
 
+shaders = [
+  'vert',
+  'frag',
+]
+
+find_program('glslc')
 run_target(
   'shaders',
-  command : 'compile_shaders.sh'
+  command : [
+    'compile_shaders.sh',
+    shaders,
+  ],
 )
 
 test('basic', files(['test.sh']))

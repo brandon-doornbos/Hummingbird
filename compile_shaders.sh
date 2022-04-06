@@ -4,5 +4,6 @@ ls "${MESON_BUILD_ROOT}/shaders" &> /dev/null || mkdir "${MESON_BUILD_ROOT}/shad
 
 cd "${MESON_SOURCE_ROOT}/src/shaders/"
 
-glslc -fshader-stage=vert "vert.glsl" -o "${MESON_BUILD_ROOT}/shaders/vert.spv"
-glslc -fshader-stage=frag "frag.glsl" -o "${MESON_BUILD_ROOT}/shaders/frag.spv"
+for shader in "$@"; do
+    glslc -fshader-stage="$shader" "$shader.glsl" -o "${MESON_BUILD_ROOT}/shaders/$shader.spv" && echo "Shader built: $shader";
+done

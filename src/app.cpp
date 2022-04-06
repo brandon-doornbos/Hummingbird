@@ -95,21 +95,12 @@ bool App::check_validation_layer_support() const
     std::vector<VkLayerProperties> available_layers(layer_count);
     vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
 
-    for (char const* layerName : m_validation_layers) {
-        bool layer_found = false;
+    std::set<std::string> required_layers(m_validation_layers.begin(), m_validation_layers.end());
 
-        for (auto const& layerProperties : available_layers) {
-            if (strcmp(layerName, layerProperties.layerName) == 0) {
-                layer_found = true;
-                break;
-            }
-        }
+    for (auto const& layer : available_layers)
+        required_layers.erase(layer.layerName);
 
-        if (!layer_found)
-            return false;
-    }
-
-    return true;
+    return required_layers.empty();
 }
 
 void App::init_window()

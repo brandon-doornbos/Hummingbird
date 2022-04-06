@@ -88,7 +88,7 @@ void App::init_window()
     glfwSetFramebufferSizeCallback(m_window, framebuffer_resize_callback);
 }
 
-void App::framebuffer_resize_callback(GLFWwindow* window, int width, int height)
+void App::framebuffer_resize_callback(GLFWwindow* window, int, int)
 {
     auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     app->m_framebuffer_resized = true;

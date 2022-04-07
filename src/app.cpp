@@ -128,6 +128,21 @@ void App::framebuffer_resize_callback(GLFWwindow* window, int, int)
     app->m_framebuffer_resized = true;
 }
 
+void App::set_required_instance_extensions()
+{
+    uint32_t glfw_extension_count = 0;
+    char const** glfw_extensions;
+    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+
+    if (glfw_extensions == NULL)
+        throw std::runtime_error("failed to get window surface creation extensions!");
+
+    m_instance_extensions.reserve(m_instance_extensions.size() + glfw_extension_count);
+
+    for (size_t i = 0; i < glfw_extension_count; i += 1)
+        m_instance_extensions.push_back(glfw_extensions[i]);
+}
+
 bool App::check_instance_extension_support() const
 {
     uint32_t extension_count;
@@ -163,15 +178,12 @@ void App::create_instance()
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     create_info.pApplicationInfo = &app_info;
 
-    uint32_t glfw_extension_count = 0;
-    char const** glfw_extensions;
-    glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
-    if (glfw_extensions == NULL || !check_instance_extension_support())
+    set_required_instance_extensions();
+    if (!check_instance_extension_support())
         throw std::runtime_error("failed to get required instance extensions!");
+    create_info.enabledExtensionCount = m_instance_extensions.size();
+    create_info.ppEnabledExtensionNames = m_instance_extensions.data();
 
-    create_info.enabledExtensionCount = glfw_extension_count;
-    create_info.ppEnabledExtensionNames = glfw_extensions;
     if (m_enable_validation_layers) {
         create_info.enabledLayerCount = static_cast<uint32_t>(m_validation_layers.size());
         create_info.ppEnabledLayerNames = m_validation_layers.data();

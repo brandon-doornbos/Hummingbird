@@ -34,6 +34,7 @@ private:
 #else
     bool const m_enable_validation_layers = true;
 #endif
+    std::vector<char const*> const m_instance_extensions = {};
     std::vector<char const*> const m_device_extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
@@ -74,6 +75,7 @@ private:
     bool check_validation_layer_support() const;
     void init_window();
     static void framebuffer_resize_callback(GLFWwindow*, int, int);
+    bool check_instance_extension_support() const;
     void create_instance();
     void create_surface();
     void init_vulkan();

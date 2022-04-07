@@ -128,6 +128,22 @@ void App::framebuffer_resize_callback(GLFWwindow* window, int, int)
     app->m_framebuffer_resized = true;
 }
 
+bool App::check_instance_extension_support() const
+{
+    uint32_t extension_count;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
+
+    std::vector<VkExtensionProperties> available_extensions(extension_count);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, available_extensions.data());
+
+    std::set<std::string> required_extensions(m_instance_extensions.begin(), m_instance_extensions.end());
+
+    for (auto const& extension : available_extensions)
+        required_extensions.erase(extension.extensionName);
+
+    return required_extensions.empty();
+}
+
 void App::create_instance()
 {
     if (m_enable_validation_layers && !check_validation_layer_support())
@@ -149,10 +165,10 @@ void App::create_instance()
 
     uint32_t glfw_extension_count = 0;
     char const** glfw_extensions;
-
     glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-    if (glfw_extensions == NULL)
-        throw std::runtime_error("Failed to get required extensions.");
+
+    if (glfw_extensions == NULL || !check_instance_extension_support())
+        throw std::runtime_error("failed to get required instance extensions!");
 
     create_info.enabledExtensionCount = glfw_extension_count;
     create_info.ppEnabledExtensionNames = glfw_extensions;
@@ -165,9 +181,6 @@ void App::create_instance()
 
     if (vkCreateInstance(&create_info, nullptr, &m_instance) != VK_SUCCESS)
         throw std::runtime_error("failed to create instance!");
-
-    // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
-    // Checking for extension support
 }
 
 void App::create_surface()

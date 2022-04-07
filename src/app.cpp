@@ -196,9 +196,13 @@ void App::create_instance()
     create_info.enabledExtensionCount = m_instance_extensions.size();
     create_info.ppEnabledExtensionNames = m_instance_extensions.data();
 
+    VkDebugUtilsMessengerCreateInfoEXT debug_create_info {};
     if (m_enable_validation_layers) {
         create_info.enabledLayerCount = static_cast<uint32_t>(m_validation_layers.size());
         create_info.ppEnabledLayerNames = m_validation_layers.data();
+
+        populate_debug_messenger_create_info(debug_create_info);
+        create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
     } else {
         create_info.enabledLayerCount = 0;
     }
@@ -220,12 +224,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL App::debug_callback(
     return VK_FALSE;
 }
 
-void App::setup_debug_messenger()
+void App::populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT& create_info)
 {
-    if (!m_enable_validation_layers)
-        return;
-
-    VkDebugUtilsMessengerCreateInfoEXT create_info {};
     create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
@@ -235,6 +235,15 @@ void App::setup_debug_messenger()
         | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
         | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     create_info.pfnUserCallback = debug_callback;
+}
+
+void App::setup_debug_messenger()
+{
+    if (!m_enable_validation_layers)
+        return;
+
+    VkDebugUtilsMessengerCreateInfoEXT create_info {};
+    populate_debug_messenger_create_info(create_info);
 
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugUtilsMessengerEXT");
     if (func == nullptr || func(m_instance, &create_info, nullptr, &m_debug_messenger) != VK_SUCCESS)

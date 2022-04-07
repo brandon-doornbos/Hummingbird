@@ -34,7 +34,7 @@ private:
     static VkDebugUtilsMessageSeverityFlagBitsEXT const LOG_LEVEL = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 #else
     bool const m_enable_validation_layers = true;
-    static VkDebugUtilsMessageSeverityFlagBitsEXT const LOG_LEVEL = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+    static VkDebugUtilsMessageSeverityFlagBitsEXT const LOG_LEVEL = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
 #endif
     std::vector<char const*> m_instance_extensions = {};
     std::vector<char const*> const m_device_extensions = {
@@ -86,6 +86,7 @@ private:
         VkDebugUtilsMessageTypeFlagsEXT,
         VkDebugUtilsMessengerCallbackDataEXT const*,
         void*);
+    void populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT&);
     void setup_debug_messenger();
     void create_surface();
     void init_vulkan();

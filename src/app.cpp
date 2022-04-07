@@ -83,9 +83,11 @@ App::~App()
     vkDestroyCommandPool(m_device, m_command_pool, nullptr);
     vkDestroyDevice(m_device, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_instance, "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr)
-        func(m_instance, m_debug_messenger, nullptr);
+    if (m_enable_validation_layers) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_instance, "vkDestroyDebugUtilsMessengerEXT");
+        if (func != nullptr)
+            func(m_instance, m_debug_messenger, nullptr);
+    }
     vkDestroyInstance(m_instance, nullptr);
 
     glfwDestroyWindow(m_window);

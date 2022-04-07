@@ -111,6 +111,9 @@ void App::init_window()
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
+    if (glfwVulkanSupported() != GLFW_TRUE)
+        throw std::runtime_error("no vulkan support found!");
+
     m_window = glfwCreateWindow(
         m_app_info.width, m_app_info.height,
         (std::string(m_app_info.name) + " @ " + std::string(m_app_info.version)).c_str(),

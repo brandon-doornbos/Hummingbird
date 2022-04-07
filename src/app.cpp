@@ -1,4 +1,5 @@
 #include <cstring>
+#include <iostream>
 #include <optional>
 #include <set>
 #include <stdexcept>
@@ -82,6 +83,9 @@ App::~App()
     vkDestroyCommandPool(m_device, m_command_pool, nullptr);
     vkDestroyDevice(m_device, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr)
+        func(m_instance, m_debug_messenger, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 
     glfwDestroyWindow(m_window);
@@ -140,10 +144,13 @@ void App::set_required_instance_extensions()
     if (glfw_extensions == NULL)
         throw std::runtime_error("failed to get window surface creation extensions!");
 
-    m_instance_extensions.reserve(m_instance_extensions.size() + glfw_extension_count);
+    m_instance_extensions.reserve(m_instance_extensions.size() + glfw_extension_count + 1);
 
     for (size_t i = 0; i < glfw_extension_count; i += 1)
         m_instance_extensions.push_back(glfw_extensions[i]);
+
+    if (m_enable_validation_layers)
+        m_instance_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 }
 
 bool App::check_instance_extension_support() const
@@ -198,6 +205,40 @@ void App::create_instance()
         throw std::runtime_error("failed to create instance!");
 }
 
+VKAPI_ATTR VkBool32 VKAPI_CALL App::debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+    VkDebugUtilsMessageTypeFlagsEXT,
+    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    void*)
+{
+    if (message_severity >= LOG_LEVEL) {
+        std::cout << "validation layer: " << callback_data->pMessage << '\n';
+    }
+
+    return VK_FALSE;
+}
+
+void App::setup_debug_messenger()
+{
+    if (!m_enable_validation_layers)
+        return;
+
+    VkDebugUtilsMessengerCreateInfoEXT create_info {};
+    create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    create_info.pfnUserCallback = debug_callback;
+
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func == nullptr || func(m_instance, &create_info, nullptr, &m_debug_messenger) != VK_SUCCESS)
+        throw std::runtime_error("failed to set up debug messenger!");
+}
+
 void App::create_surface()
 {
     if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
@@ -207,6 +248,7 @@ void App::create_surface()
 void App::init_vulkan()
 {
     create_instance();
+    setup_debug_messenger();
     create_surface();
     pick_physical_device();
     create_logical_device();

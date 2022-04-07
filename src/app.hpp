@@ -31,8 +31,10 @@ private:
     };
 #ifdef NDEBUG
     bool const m_enable_validation_layers = false;
+    static VkDebugUtilsMessageSeverityFlagBitsEXT const LOG_LEVEL = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 #else
     bool const m_enable_validation_layers = true;
+    static VkDebugUtilsMessageSeverityFlagBitsEXT const LOG_LEVEL = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 #endif
     std::vector<char const*> m_instance_extensions = {};
     std::vector<char const*> const m_device_extensions = {
@@ -41,6 +43,7 @@ private:
     AppInfo m_app_info;
     GLFWwindow* m_window;
     VkInstance m_instance;
+    VkDebugUtilsMessengerEXT m_debug_messenger;
     VkSurfaceKHR m_surface;
     VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
     VkDevice m_device;
@@ -78,6 +81,12 @@ private:
     void set_required_instance_extensions();
     bool check_instance_extension_support() const;
     void create_instance();
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT,
+        VkDebugUtilsMessageTypeFlagsEXT,
+        VkDebugUtilsMessengerCallbackDataEXT const*,
+        void*);
+    void setup_debug_messenger();
     void create_surface();
     void init_vulkan();
     void pick_physical_device();
